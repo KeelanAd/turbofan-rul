@@ -10,9 +10,18 @@ Remaining-Useful-Life (RUL) prediction for turbofan engines using NASA's C-MAPSS
 ## Dataset
 NASA C-MAPSS *Turbofan Engine Degradation Simulation*, subset **FD001** (one operating condition, one fault mode).
 
+Each file has 26 space-separated columns and no header:
+
+| File column | Name in code | What it is |
+|-------------|--------------|------------|
+| 1 | `unit` | engine id |
+| 2 | `cycle` | time step (one flight cycle) |
+| 3–5 | `op_setting_1` … `op_setting_3` | operational settings |
+| 6–26 | `sensor_1` … `sensor_21` | sensor readings (file column = sensor number + 5) |
+
 The raw files are not committed. To reproduce:
 1. Download the C-MAPSS dataset from the [NASA Prognostics Data Repository](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/).
-2. Put `train_FD001.txt`, `test_FD001.txt` and `RUL_FD001.txt` in `data/`.
+2. Put the unzipped `CMaps` folder inside `data/`.
 
 ## Method
 <!-- Exploration → dropping flat sensors → RUL labels (clipped) → scaling → baseline → tree models with rolling features. -->
