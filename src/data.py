@@ -40,6 +40,30 @@ def drop_flat_columns(df):
     """Remove the constant / noise-only columns listed in DROP_COLUMNS."""
     return df.drop(columns=DROP_COLUMNS)
 
+
+# Sensors look healthy early in life (see the flat start of sensor_11), so
+# anything above this many cycles left can't be told apart from the data
+MAX_RUL = 125
+
+
+def add_rul(df):
+    """Add the training target: cycles left before failure, capped at MAX_RUL."""
+    df = df.copy()
+    # transform("max") puts each engine's own final cycle on every one of its rows
+    last_cycle = df.groupby("unit")["cycle"].transform("max")
+    df["RUL"] = (last_cycle - df["cycle"]).clip(upper=MAX_RUL)
+    return df
+
+
+def load_test_truth(filename="RUL_FD001.txt"):
+    """True RUL at the last cycle of each test engine, indexed by unit."""
+    # The file has one line per engine, in unit order, and no unit column
+    truth = pd.read_csv(DATA_DIR / filename, sep=r"\s+", header=None, names=["RUL"])["RUL"]
+    truth.index = range(1, len(truth) + 1)
+    truth.index.name = "unit"
+    return truth
+
+
 if __name__ == "__main__":
     train = load_cmapss("train_FD001.txt")
     print(train.shape)
